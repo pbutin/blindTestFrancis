@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
     });
   });
 
-const PORT = process.env['PORT'];
-server.listen(PORT || 30001 , () => {
+const PORT = process.env.PORT || 3001;
+server.listen(PORT , () => {
   console.log('App started');
 });

@@ -3,7 +3,7 @@ import './App.css';
 import socketIOClient from "socket.io-client";
 import React, { useState, useEffect } from "react";
 
-const socket = socketIOClient('localhost:3001');
+const socket = socketIOClient();
 
 function App() {
 

@@ -39,6 +39,7 @@ io.on('connection', (socket) => {
     });
   });
 
-server.listen(3001, () => {
-  console.log('listening on *:3001');
+const PORT = process.env['PORT'];
+server.listen(PORT || 30001 , () => {
+  console.log('App started');
 });

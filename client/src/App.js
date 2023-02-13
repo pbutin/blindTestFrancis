@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 
 import Bouton from './Bouton';
 
-const socket = socketIOClient("localhost:3001");
+const socket = socketIOClient();
 
 function App() {
 

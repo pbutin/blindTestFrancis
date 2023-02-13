@@ -13,14 +13,19 @@ app.get('/', (req, res) => {
 
 let tables=[];
 
+
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.emit('initTables', tables);
 
-    socket.on('addTable', (data) => {
-        console.log('addTable: ' + data);
-        tables.push(data);
-        io.emit('addTable', data);
+    socket.on('addTable', (tableName) => {
+        console.log('addTable: ' + tableName);
+        const json = {
+          name: tableName,
+          score: 0
+        }
+        tables.push(json);
+        io.emit('addTable', JSON.stringify(json));
     });
 
     socket.on('removeAllTables', () => {
@@ -29,9 +34,16 @@ io.on('connection', (socket) => {
         io.emit('removeAllTables');
     });
 
-    socket.on('addPoint', (data) => {
-        console.log('addPoint: ' + data);
-        io.emit('addPoint', data);
+    socket.on('addPoints', (data) => {
+        console.log('addPoints: ' + JSON.stringify(data));
+
+        tables.forEach(table => {
+          if (table.name === data.name) {
+            table.score += data.pointsToAdd;
+          }
+        });
+
+        io.emit('addPoints', tables);
     });
 
     socket.on('disconnect', () => {

@@ -1,12 +1,15 @@
 import socketIOClient from "socket.io-client";
 import React, { useState, useEffect } from "react";
 
-const socket = socketIOClient();
+import Bouton from './Bouton';
+
+const socket = socketIOClient("localhost:3001");
 
 function App() {
 
   const [tables, setTables] = useState([]);
   const [points, setPoints] = useState([]);
+  const [multiplicator, setMultiplicator] = useState(1);
 
   useEffect(() => {
     socket.on('initTables', tables => {
@@ -18,14 +21,14 @@ function App() {
       setTables([]);
     });
 
-    socket.on('addTable', tableName => {
-      console.log('Received addTable');
-      setTables(tables => [...tables, tableName]);
+    socket.on('addTable', table => {
+      console.log('Received addTable:' + table);
+      setTables(tables => [...tables, JSON.parse(table)]);
     });
 
-    socket.on('addPoints', pointsToAdd => {
-      console.log('Received addTable');
-      setPoints(points => [...points, pointsToAdd]);
+    socket.on('addPoints', tables => {
+      console.log('Received addPoints:' + JSON.stringify(tables));
+      setTables(tables);
     });
 
     return () => {
@@ -38,7 +41,7 @@ function App() {
 
   const addTable = () => {
     const nameInput = document.getElementById("tableNameInput");
-    if (nameInput.value !== "") {
+    if (nameInput.value.trim() !== "") {
       console.log("Send addTable");
       socket.emit("addTable", nameInput.value);
       nameInput.value = "";
@@ -50,10 +53,22 @@ function App() {
     socket.emit("removeAllTables");
   }
 
-  const addPoint = (points) => {
-    console.log("Send points");
-    socket.emit("addPoints", points);
+  const addPoints = (table, points) => {
+    console.log("Send addPoints");
+    const json = {
+      name: table.name,
+      pointsToAdd: points
+    }
+    socket.emit("addPoints", json);
   }
+
+  const insertChatPoints = (table) => {
+		if (!table) {
+			return null
+		}
+
+		return '  ➔ ' + table.score + ' pts';
+	}
 
   return (
     <div className="App">
@@ -61,7 +76,7 @@ function App() {
         type="text"
         className="blue-input"
         id="tableNameInput"
-        name="name"
+        name="table"
         placeholder="Entrer le nom d'une table .."
         required
       />
@@ -70,23 +85,49 @@ function App() {
         onClick={() => addTable()}>
         Ajouter une table
       </button>
-      <h5
+      <button
+        className="red-btn"
         onClick={() => removeAllTables()}>
         Vider les tables
-      </h5>
+      </button>
       <p>
         Les tables :
-        {tables.map((table, index) =>
-          <li key={index}>
-            {table}
-          </li>
-        )}
       </p>
-      {/* <h1
-        onClick={() => addPoint(10)}>
-          Ajouter des points
-      </h1> */}
+      <div className="chats">
+			    {tables.map((table, index, array) => (
+			    	<div key={index} >
+				    	<p style={(index%2 === 0) ? {backgroundColor: "#E8E8E8"} : {}} className="table">
+				    		<span className="gauche">
+				    			<Bouton
+				    				onClick={() => addPoints(table, -1 * multiplicator)}
+				    				label={-1 * multiplicator}
+				    				type="addScoreBouton"/>
+				    		</span>
+				    		<span className="droite">
+					    		<Bouton 
+					    			onClick={() => addPoints(table, 1 * multiplicator)}
+					    			label={"+" + 1 * multiplicator}
+					    			type="addScoreBouton"/>
+						    	<Bouton
+						    		onClick={() => addPoints(table, 2 * multiplicator)}
+						    		label={"+" + 2 * multiplicator}
+						    		type="addScoreBouton"/>
+						    	<Bouton
+						    		onClick={() => addPoints(table, 5 * multiplicator	)}
+						    		label={"+" + 5 * multiplicator}
+						    		type="addScoreBouton"/>
+						    </span>
+		      				<span className="table">
+			      				<b className="username">
+			      					{table.name}
+			      				</b>
+			      				{insertChatPoints(table)}
+			      			</span>
+		      			</p>
+		      		</div>
+		    	))}
     </div>
+  </div>
   );
 }
 

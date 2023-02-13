@@ -1,5 +1,3 @@
-import logo from './logo.svg';
-import './App.css';
 import socketIOClient from "socket.io-client";
 import React, { useState, useEffect } from "react";
 
@@ -7,8 +5,8 @@ const socket = socketIOClient();
 
 function App() {
 
-	const [tables, setTables] = useState([]);
-	const [points, setPoints] = useState([]);
+  const [tables, setTables] = useState([]);
+  const [points, setPoints] = useState([]);
 
   useEffect(() => {
     socket.on('initTables', tables => {
@@ -59,18 +57,26 @@ function App() {
 
   return (
     <div className="App">
-      <input type="text" id="tableNameInput" name="name" required></input>
-      <h3
+      <input
+        type="text"
+        className="blue-input"
+        id="tableNameInput"
+        name="name"
+        placeholder="Entrer le nom d'une table .."
+        required
+      />
+      <button
+        className="blue-btn"
         onClick={() => addTable()}>
-          Ajouter une table
-      </h3>
+        Ajouter une table
+      </button>
       <h5
         onClick={() => removeAllTables()}>
         Vider les tables
       </h5>
       <p>
         Les tables :
-        { tables.map((table, index) =>
+        {tables.map((table, index) =>
           <li key={index}>
             {table}
           </li>
